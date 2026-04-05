@@ -116,14 +116,19 @@ h1, h2, h3 {
 }
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--mono)}
 .page{
-  display: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transform: translateY(20px);
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .page.active{
-  display: block;
   opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
 }
 /* ── LANDING ── */
 #page-home{align-items:center;justify-content:center;padding:2rem 1rem}
@@ -288,7 +293,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
 <body>
 
 <!-- ════ LANDING ════ -->
-<div id="page-home" class="page active">
+<div class="app-container">
+  <div id="page-home" class="page active">
   <div class="home-inner">
     <div class="home-eyebrow">train · practice · master</div>
     <div class="home-wordmark">
@@ -365,6 +371,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
       </div>
     </div>
   </div>
+ </div>
 </div>
 
 <!-- ════ GAMES ════ -->
