@@ -20,12 +20,9 @@
     }
 }/* 🌐 Global Reset + Font */
 body {
-  margin: 0;
-} 
-    {
-  overflow-x: hidden;
-}
-    {
+    margin: 0;
+    max-width: 100%;
+    overflow-x: hidden;
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #f0f4ff, #e6f0ff);
     margin: 0;
@@ -123,9 +120,11 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
   transform: translateY(20px);
   pointer-events: none;
   position: absolute;
+  inset: 0;
   top: 0;
   left: 0;
   width: 100%;
+  overflow-x: hidden;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
