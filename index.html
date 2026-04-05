@@ -28,7 +28,7 @@ body {
     padding: 20px;
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    transition: transform 0.35s ease, box-shadow 0.35s ease !important;
 }
 
 .card:hover {
@@ -44,7 +44,7 @@ button {
     border-radius: 10px;
     cursor: pointer;
     font-weight: 500;
-    transition: transform 0.2s ease, background 0.3s ease;
+    transition: transform 0.2s ease, background 0.3s ease !important;
 }
 
 button:hover {
@@ -65,7 +65,7 @@ input, textarea {
     margin-top: 8px;
     margin-bottom: 16px;
     font-size: 14px;
-    transition: border 0.25s ease, box-shadow 0.25s ease;
+    transition: border 0.25s ease, box-shadow 0.25s ease !important;
 }
 
 input:focus, textarea:focus {
@@ -894,4 +894,11 @@ function stFinish(){
 }
 </script>
 </body>
+/* 🚫 Override bad transitions globally */
+* {
+    transition-property: none !important;
+}
+.some-class {
+    transition: opacity 0.3s ease;
+}
 </html>
