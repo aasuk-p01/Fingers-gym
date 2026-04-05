@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fingers Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#ebebeb;
+  --border:#e0e0e0;--border2:#ccc;
+  --text:#111111;--text2:#888;--text3:#bbb;
+  --green:#16a34a;--red:#dc2626;--yellow:#ca8a04;--blue:#2563eb;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--mono)}
+.page{display:none;min-height:100vh;flex-direction:column}
+.page.active{display:flex}
+
+/* ── LANDING ── */
+#page-home{align-items:center;justify-content:center;padding:2rem 1rem}
+.home-inner{text-align:center;width:100%;max-width:680px}
+.home-eyebrow{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:4px;margin-bottom:2rem}
+.home-wordmark{font-family:var(--sans);font-weight:800;line-height:.88;letter-spacing:-4px;color:var(--text);margin-bottom:.75rem;font-size:clamp(72px,15vw,120px)}
+.home-wordmark .line2{display:block}
+.home-sub{font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:4.5rem;letter-spacing:.5px}
+.tab-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%}
+.tab-card{background:var(--bg);border:1.5px solid var(--border);border-radius:18px;padding:2.25rem 1.25rem 2rem;cursor:pointer;transition:all .22s;display:flex;flex-direction:column;align-items:center;gap:.85rem}
+.tab-card:hover{border-color:var(--text);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.06)}
+.tab-card:active{transform:translateY(-1px)}
+.tc-icon{font-size:44px;line-height:1;display:block;margin-bottom:.25rem}
+.tc-name{font-family:var(--sans);font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.tc-desc{font-size:10px;color:var(--text2);line-height:1.6;text-align:center;max-width:160px}
+.home-note{margin-top:2.5rem;font-size:10px;color:var(--text3)}
+
+/* ── INNER HEADER ── */
+.inner-header{border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;background:var(--bg);z-index:100;flex-shrink:0}
+.ih-back{background:none;border:none;color:var(--text2);cursor:pointer;font-family:var(--mono);font-size:12px;display:flex;align-items:center;gap:6px;padding:0}
+.ih-back:hover{color:var(--text)}
+.ih-logo{font-family:var(--sans);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.ih-right{font-size:11px;color:var(--text2)}
+.inner-body{flex:1;padding:2rem;max-width:820px;margin:0 auto;width:100%}
+
+/* ── TYPE ZERO ── */
+.tz-screen{display:none}.tz-screen.active{display:block}
+.tz-home-h{font-family:var(--sans);font-size:22px;font-weight:800;margin-bottom:4px}
+.tz-home-s{font-size:11px;color:var(--text2);margin-bottom:2rem}
+.level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:8px;margin-bottom:1.5rem}
+.lcard{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;position:relative}
+.lcard:hover{border-color:var(--text);background:var(--bg2)}
+.lcard.locked{opacity:.3;cursor:not-allowed}
+.lcard.completed{border-color:var(--green)}
+.lcard.cur{border-color:var(--blue)}
+.lcard .ln{font-size:10px;color:var(--text3);margin-bottom:4px;font-family:var(--sans)}
+.lcard .lk{font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:4px}
+.lcard .ls{font-size:10px;color:var(--text2)}
+.lcard .lcheck{position:absolute;top:10px;right:10px;color:var(--green);font-size:11px}
+.ss-back,.gp-back{background:none;border:none;color:var(--text2);cursor:pointer;font-family:var(--mono);font-size:12px;margin-bottom:1.5rem;padding:0;display:flex;align-items:center;gap:6px}
+.ss-back:hover,.gp-back:hover{color:var(--text)}
+.gp-back{margin-bottom:0}
+.ss-h{font-family:var(--sans);font-size:20px;font-weight:700;margin-bottom:4px}
+.ss-sub{font-size:11px;color:var(--text2);margin-bottom:1.5rem}
+.srow{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:border-color .15s}
+.srow:hover{border-color:var(--border2)}
+.srow.locked{opacity:.35;cursor:not-allowed}
+.srow.done{border-left:3px solid var(--green)}
+.srow.test{border-left:3px solid var(--blue)}
+.srow .sn{font-size:11px;color:var(--text3);min-width:18px}
+.srow .st{font-size:13px;flex:1;font-family:var(--sans)}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px}
+.bp{background:#dcfce7;color:var(--green)}.bt{background:#dbeafe;color:var(--blue)}.bd{background:#dcfce7;color:var(--green)}
+.pm{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem}
+.pt{font-family:var(--sans);font-size:15px;font-weight:700;flex:1}
+.pp{font-size:11px;color:var(--text2)}
+.wdisp{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:2.5rem 2rem;text-align:center;margin-bottom:1.5rem;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem}
+.tw{font-size:38px;font-weight:500;letter-spacing:8px}
+.tw .c{color:var(--green)}.tw .w{color:var(--red);text-decoration:underline}.tw .p{color:var(--text3)}.tw .cur{color:var(--text);border-bottom:2px solid var(--text)}
+.wh{font-size:11px;color:var(--text3)}
+#tz-inp{width:100%;font-size:22px;font-family:var(--mono);text-align:center;padding:.7rem 1rem;border:1.5px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text);outline:none;letter-spacing:5px;margin-bottom:1.5rem}
+#tz-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+#tz-inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.srow-stats{display:flex;gap:8px;margin-bottom:1rem}
+.sc{flex:1;background:var(--bg2);border-radius:8px;padding:8px;text-align:center;border:1px solid var(--border)}
+.sv{font-size:18px;font-weight:500}.sl{font-size:10px;color:var(--text2);margin-top:2px}
+.wbadges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem;min-height:24px}
+.wb{font-size:11px;padding:2px 7px;border-radius:20px;background:#dcfce7;color:var(--green)}
+.wb.fail{background:#fee2e2;color:var(--red)}
+.kb-visual{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px}
+.kb-row{display:flex;justify-content:center;gap:3px;margin-bottom:3px}
+.key{min-width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);padding:0 3px;transition:all .1s}
+.key.ak{background:#dbeafe;color:var(--blue);border-color:#93c5fd}
+.key.lk{background:#dcfce7;color:var(--green);border-color:#86efac}
+.key.space-key{min-width:120px}
+.res-wrap{text-align:center;padding:3rem 0}
+.res-big{font-size:64px;font-weight:700;font-family:var(--sans);line-height:1}
+.res-lbl{font-size:12px;color:var(--text2);margin-bottom:2rem;margin-top:.25rem}
+.res-stats{display:flex;justify-content:center;gap:2rem;margin-bottom:2.5rem}
+.rs .rv{font-size:24px;font-weight:500}.rs .rl{font-size:11px;color:var(--text2)}
+.btn-row{display:flex;justify-content:center;gap:10px}
+.btn{font-family:var(--mono);font-size:12px;padding:9px 22px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);transition:all .15s}
+.btn:hover{background:var(--bg2)}
+.btn.pri{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.pri:hover{opacity:.85}
+
+/* ── GAMES ── */
+.gm-screen{display:none}.gm-screen.active{display:block}
+.gm-home-h{font-family:var(--sans);font-size:22px;font-weight:800;margin-bottom:4px}
+.gm-home-sub{font-size:11px;color:var(--text2);margin-bottom:2rem}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px}
+.game-card{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;text-align:center}
+.game-card:hover{border-color:var(--text);transform:translateY(-2px)}
+.game-card.locked{opacity:.3;cursor:not-allowed;transform:none}
+.gc-emoji{font-size:30px;margin-bottom:10px;display:block}
+.gc-name{font-family:var(--sans);font-size:14px;font-weight:700;margin-bottom:4px}
+.gc-desc{font-size:10px;color:var(--text2);margin-bottom:6px;line-height:1.5}
+.gc-lock{font-size:10px;color:var(--text3)}
+.gp-header{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem}
+.gp-title{font-family:var(--sans);font-size:16px;font-weight:700;flex:1}
+.gp-score{font-size:13px;color:var(--text2)}
+.fk-arena{background:var(--bg2);border:1px solid var(--border);border-radius:12px;height:290px;position:relative;overflow:hidden;margin-bottom:1rem}
+.falling-key{position:absolute;font-size:26px;animation:fall linear forwards;user-select:none;pointer-events:none}
+@keyframes fall{from{transform:translateY(-50px)}to{transform:translateY(330px)}}
+.game-inp{width:100%;font-size:20px;font-family:var(--mono);text-align:center;padding:.6rem;border:1.5px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text);outline:none;letter-spacing:4px;margin-bottom:.75rem}
+.game-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.lives{display:flex;gap:6px;justify-content:center;font-size:18px}
+.wr-word{position:absolute;font-family:var(--mono);font-size:15px;color:var(--text3);animation:fall2 linear forwards;white-space:nowrap}
+@keyframes fall2{from{transform:translateY(-30px)}to{transform:translateY(320px)}}
+.wr-word.wr-active{color:var(--text);font-weight:500}
+.sb-arena,.em-arena{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:2rem;text-align:center;margin-bottom:1rem}
+.sb-target{font-size:28px;font-weight:500;letter-spacing:6px;margin-bottom:1rem;min-height:44px}
+.sb-bar-wrap{background:var(--bg3);border-radius:4px;height:5px;overflow:hidden;margin-bottom:.5rem}
+.sb-bar{height:100%;background:var(--text);border-radius:4px;transition:width .05s}
+.sb-timer{font-size:11px;color:var(--text2)}
+.sb-streak{font-size:12px;color:var(--text2);text-align:center}
+.em-emoji{font-size:54px;margin-bottom:.75rem;display:block;animation:pop .2s ease}
+@keyframes pop{0%{transform:scale(.5)}100%{transform:scale(1)}}
+.em-prompt{font-size:12px;color:var(--text2);margin-bottom:.25rem}
+.em-keys-show{font-size:22px;letter-spacing:6px;color:var(--text);margin-bottom:.5rem;min-height:32px}
+.combo-bar{font-size:11px;color:var(--yellow);text-align:center;margin-bottom:.5rem;min-height:16px}
+.go-screen{text-align:center;padding:2rem 0}
+.go-big{font-size:54px;font-weight:800;font-family:var(--sans);margin-bottom:.25rem}
+.go-lbl{font-size:11px;color:var(--text2);margin-bottom:1.5rem}
+.go-stats{display:flex;justify-content:center;gap:2rem;margin-bottom:2rem}
+
+/* ── SPEED TEST ── */
+.st-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:12px}
+.st-title{font-family:var(--sans);font-size:22px;font-weight:800}
+.st-options{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.st-opt-group{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:3px}
+.st-opt{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:all .12s}
+.st-opt:hover{color:var(--text)}
+.st-opt.active{background:var(--bg);color:var(--text);border:1px solid var(--border2)}
+.st-timer-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+.st-time-big{font-family:var(--sans);font-size:28px;font-weight:700;min-width:48px}
+.st-time-bar-wrap{flex:1;background:var(--bg2);border-radius:3px;height:3px;overflow:hidden;border:1px solid var(--border)}
+.st-time-bar{height:100%;background:var(--text);transition:width .1s linear;border-radius:3px}
+.st-wpm-live{font-size:13px;color:var(--text2);min-width:60px;text-align:right}
+.st-click-hint{text-align:center;font-size:12px;color:var(--text3);padding:1.5rem;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer}
+.st-click-hint:hover{border-color:var(--border2);color:var(--text2)}
+.st-para-wrap{position:relative;margin-bottom:2rem}
+.st-para{font-size:19px;line-height:2;letter-spacing:.3px;color:var(--text3);user-select:none}
+.st-para .st-correct{color:var(--text)}
+.st-para .st-wrong{color:var(--red)}
+.st-para .st-cursor{border-left:2px solid var(--text);margin-left:-1px;animation:blink .7s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.st-hidden-inp{position:absolute;opacity:0;top:0;left:0;width:100%;height:100%;cursor:text}
+.st-hidden-inp:focus{outline:none}
+.st-result{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:3rem;text-align:center}
+.str-wpm{font-size:72px;font-weight:800;font-family:var(--sans);line-height:1}
+.str-lbl{font-size:12px;color:var(--text2);margin-bottom:2.5rem}
+.str-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:2rem;max-width:480px;margin-left:auto;margin-right:auto}
+.str-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+.str-card .scv{font-size:22px;font-weight:500}
+.str-card .scl{font-size:10px;color:var(--text2);margin-top:3px}
+.str-chart{height:80px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:2rem;display:flex;align-items:flex-end;padding:8px;gap:3px}
+.str-bar{flex:1;background:var(--border);border-radius:3px 3px 0 0;min-height:2px}
+.str-bar.peak{background:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- ════ LANDING ════ -->
+<div id="page-home" class="page active">
+  <div class="home-inner">
+    <div class="home-eyebrow">train · practice · master</div>
+    <div class="home-wordmark">
+      fingers<span class="line2">gym</span>
+    </div>
+    <div class="home-sub">master the keyboard · one key pair at a time</div>
+    <div class="tab-cards">
+      <div class="tab-card" onclick="openPage('typezero')">
+        <span class="tc-icon">🤸</span>
+        <div class="tc-name">TypeZero</div>
+        <div class="tc-desc">structured key training, 14 levels, pair by pair from scratch</div>
+      </div>
+      <div class="tab-card" onclick="openPage('games')">
+        <span class="tc-icon">🕹️</span>
+        <div class="tc-name">Key Games</div>
+        <div class="tc-desc">6 games that unlock as you complete TypeZero levels</div>
+      </div>
+      <div class="tab-card" onclick="openPage('speedtest')">
+        <span class="tc-icon">🎓</span>
+        <div class="tc-name">Speed Test</div>
+        <div class="tc-desc">monkeytype-style · wpm · accuracy · real-time score</div>
+      </div>
+    </div>
+    <div class="home-note">progress saves automatically · certificate coming soon</div>
+  </div>
+</div>
+
+<!-- ════ TYPE ZERO ════ -->
+<div id="page-typezero" class="page">
+  <div class="inner-header">
+    <button class="ih-back" onclick="goHome()">← home</button>
+    <div class="ih-logo">TypeZero</div>
+    <div class="ih-right" id="tz-hdr">0 / 14 levels</div>
+  </div>
+  <div class="inner-body">
+    <div id="tz-home" class="tz-screen active">
+      <div class="tz-home-h">Choose a Level</div>
+      <div class="tz-home-s">complete all stages in a level to unlock the next</div>
+      <div id="tz-level-grid" class="level-grid"></div>
+    </div>
+    <div id="tz-ss" class="tz-screen">
+      <button class="ss-back" onclick="tzShowHome()">← levels</button>
+      <div class="ss-h" id="tz-ss-title"></div>
+      <div class="ss-sub" id="tz-ss-desc"></div>
+      <div id="tz-stages-list"></div>
+    </div>
+    <div id="tz-prac" class="tz-screen">
+      <button class="ss-back" onclick="tzShowSS()">← stages</button>
+      <div class="pm"><div class="pt" id="tz-prac-title"></div><div class="pp" id="tz-prac-prog"></div></div>
+      <div class="wdisp"><div class="tw" id="tz-word"></div><div class="wh" id="tz-hint"></div></div>
+      <input id="tz-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type here…"/>
+      <div class="srow-stats">
+        <div class="sc"><div class="sv" id="tz-wpm">0</div><div class="sl">wpm</div></div>
+        <div class="sc"><div class="sv" id="tz-acc">100%</div><div class="sl">accuracy</div></div>
+        <div class="sc"><div class="sv" id="tz-done">0</div><div class="sl">done</div></div>
+        <div class="sc"><div class="sv" id="tz-left">0</div><div class="sl">left</div></div>
+      </div>
+      <div class="wbadges" id="tz-badges"></div>
+      <div class="kb-visual" id="tz-kb"></div>
+    </div>
+    <div id="tz-result" class="tz-screen">
+      <div class="res-wrap">
+        <div class="res-big" id="tz-res-wpm"></div>
+        <div class="res-lbl">words per minute</div>
+        <div class="res-stats">
+          <div class="rs"><div class="rv" id="tz-res-acc"></div><div class="rl">accuracy</div></div>
+          <div class="rs"><div class="rv" id="tz-res-words"></div><div class="rl">words</div></div>
+          <div class="rs"><div class="rv" id="tz-res-time"></div><div class="rl">seconds</div></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="tzRetry()">retry</button>
+          <button class="btn pri" onclick="tzNext()">next stage →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ GAMES ════ -->
+<div id="page-games" class="page">
+  <div class="inner-header">
+    <button class="ih-back" onclick="goHome()">← home</button>
+    <div class="ih-logo">Key Games</div>
+    <div class="ih-right" id="gm-hdr"></div>
+  </div>
+  <div class="inner-body">
+    <div id="gm-home" class="gm-screen active">
+      <div class="gm-home-h">Key Games</div>
+      <div class="gm-home-sub">unlock games by completing TypeZero levels</div>
+      <div class="game-grid" id="gm-grid"></div>
+    </div>
+    <div id="gm-play" class="gm-screen">
+      <div class="gp-header">
+        <button class="gp-back" onclick="gmShowHome()">← games</button>
+        <div class="gp-title" id="gm-play-title"></div>
+        <div class="gp-score" id="gm-score-display">score: 0</div>
+      </div>
+      <div id="gm-content"></div>
+    </div>
+    <div id="gm-over" class="gm-screen">
+      <div class="go-screen">
+        <div class="go-big" id="go-score"></div>
+        <div class="go-lbl" id="go-lbl"></div>
+        <div class="go-stats" id="go-stats"></div>
+        <div class="btn-row">
+          <button class="btn" onclick="gmShowHome()">← games</button>
+          <button class="btn pri" onclick="gmReplay()">play again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SPEED TEST ════ -->
+<div id="page-speedtest" class="page">
+  <div class="inner-header">
+    <button class="ih-back" onclick="goHome()">← home</button>
+    <div class="ih-logo">Speed Test</div>
+    <div class="ih-right"></div>
+  </div>
+  <div class="inner-body">
+    <div class="st-top">
+      <div class="st-title">Speed Test</div>
+      <div class="st-options">
+        <div class="st-opt-group" id="st-time-opts">
+          <button class="st-opt" data-val="15" onclick="stSetTime(15)">15s</button>
+          <button class="st-opt active" data-val="30" onclick="stSetTime(30)">30s</button>
+          <button class="st-opt" data-val="60" onclick="stSetTime(60)">60s</button>
+          <button class="st-opt" data-val="120" onclick="stSetTime(120)">120s</button>
+        </div>
+        <div class="st-opt-group" id="st-mode-opts">
+          <button class="st-opt active" data-val="words" onclick="stSetMode('words')">words</button>
+          <button class="st-opt" data-val="quotes" onclick="stSetMode('quotes')">quotes</button>
+          <button class="st-opt" data-val="code" onclick="stSetMode('code')">code</button>
+        </div>
+      </div>
+    </div>
+    <div id="st-test-area">
+      <div class="st-timer-bar">
+        <div class="st-time-big" id="st-timer-display">30</div>
+        <div class="st-time-bar-wrap"><div class="st-time-bar" id="st-time-bar" style="width:100%"></div></div>
+        <div class="st-wpm-live" id="st-wpm-live">-- wpm</div>
+      </div>
+      <div class="st-click-hint" id="st-click-hint" onclick="stFocus()">click here or start typing to begin</div>
+      <div class="st-para-wrap" id="st-para-wrap" style="display:none">
+        <div class="st-para" id="st-para"></div>
+        <input class="st-hidden-inp" id="st-hidden-inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      </div>
+    </div>
+    <div id="st-result-area" style="display:none">
+      <div class="st-result">
+        <div class="str-wpm" id="str-wpm">0</div>
+        <div class="str-lbl">words per minute</div>
+        <div class="str-grid">
+          <div class="str-card"><div class="scv" id="str-acc">0%</div><div class="scl">accuracy</div></div>
+          <div class="str-card"><div class="scv" id="str-chars">0</div><div class="scl">characters</div></div>
+          <div class="str-card"><div class="scv" id="str-words">0</div><div class="scl">words</div></div>
+          <div class="str-card"><div class="scv" id="str-errors">0</div><div class="scl">errors</div></div>
+        </div>
+        <div class="str-chart" id="str-chart"></div>
+        <div class="btn-row"><button class="btn pri" onclick="stReset()">try again ↺</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── PAGE NAV ───
+function openPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(id==='typezero') tzRenderHome();
+  if(id==='games') gmRenderHome();
+  if(id==='speedtest') stInit();
+}
+function goHome(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+}
+
+// ─── UTILS ───
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=randInt(0,i);[r[i],r[j]]=[r[j],r[i]]}return r}
+
+let P={};try{P=JSON.parse(localStorage.getItem('fg3')||'{}')}catch(e){}
+function SP(){try{localStorage.setItem('fg3',JSON.stringify(P))}catch(e){}}
+
+// ─── TYPE ZERO ───
+const TZL=[
+  {keys:['j','f'],label:'j · f',desc:'Home row anchors — index fingers'},
+  {keys:['u','r'],label:'u · r',desc:'Upper row — left & right index stretch'},
+  {keys:['k','d'],label:'k · d',desc:'Home row — middle fingers'},
+  {keys:['l','s'],label:'l · s',desc:'Home row — ring fingers'},
+  {keys:['i','e'],label:'i · e',desc:'Upper row — most common vowels'},
+  {keys:['o','w'],label:'o · w',desc:'Upper row — next vowel pair'},
+  {keys:['a'],label:'a',desc:'Home row — left pinky'},
+  {keys:['m','n'],label:'m · n',desc:'Bottom row — index fingers'},
+  {keys:['h','g'],label:'h · g',desc:'Home row center — index crossover'},
+  {keys:['t','y'],label:'t · y',desc:'Upper row — index stretch inward'},
+  {keys:['b','v'],label:'b · v',desc:'Bottom row — index fingers'},
+  {keys:['p','q'],label:'p · q',desc:'Upper row — pinky fingers'},
+  {keys:['c','x'],label:'c · x',desc:'Bottom row — middle & ring'},
+  {keys:['z'],label:'z',desc:'Bottom row — left pinky — final!'},
+];
+function tzPrevKeys(li){let k=[];for(let i=0;i<li;i++)k=[...k,...TZL[i].keys];return k}
+function tzGenW(pool,len){let w='';for(let i=0;i<len;i++)w+=rnd(pool);return w}
+function tzBuild(li){
+  const nk=TZL[li].keys,pk=tzPrevKeys(li);const st=[];
+  for(let i=0;i<15;i++){
+    const mix=Math.min(.4,i/15*.6),wlen=2+Math.floor(i/5),wc=8+i,words=[];
+    for(let w=0;w<wc;w++){const pool=Math.random()>mix||pk.length===0?nk:[...nk,...pk];words.push(tzGenW(pool,wlen))}
+    st.push({type:'practice',label:`Stage ${i+1}`,words,keys:nk});
+  }
+  for(let i=0;i<6;i++){
+    const ak=[...nk,...pk],words=[];
+    for(let w=0;w<12+i*2;w++) words.push(tzGenW(ak,3+Math.floor(i/2)));
+    st.push({type:'test',label:`Test ${i+1}`,words,keys:ak});
+  }
+  return st;
+}
+function tzLD(li){const s=tzBuild(li);for(let i=0;i<s.length;i++)if(!P[`t${li}_${i}`])return false;return true}
+function tzLU(li){return li===0||tzLD(li-1)}
+function tzSD(li,si){return!!P[`t${li}_${si}`]}
+function tzSU(li,si){return si===0?tzLU(li):tzSD(li,si-1)}
+
+let tzCL=0,tzCS=0,tzST=[];
+let tzS={words:[],idx:0,typed:'',chars:0,t0:null,res:[]};
+
+function tzSS2(id){document.querySelectorAll('.tz-screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function tzShowHome(){tzSS2('tz-home');tzRenderHome()}
+function tzShowSS(){tzSS2('tz-ss');tzRenderSS()}
+
+function tzRenderHome(){
+  const done=TZL.filter((_,i)=>tzLD(i)).length;
+  document.getElementById('tz-hdr').textContent=`${done} / ${TZL.length} levels`;
+  const g=document.getElementById('tz-level-grid');g.innerHTML='';
+  TZL.forEach((lvl,i)=>{
+    const u=tzLU(i),d=tzLD(i);
+    const el=document.createElement('div');
+    el.className='lcard'+(d?' completed':u?' cur':'')+(u?'':' locked');
+    el.innerHTML=`${d?'<span class="lcheck">✓</span>':''}<div class="ln">Level ${i+1}</div><div class="lk">${lvl.label}</div><div class="ls">15 stages · 6 tests</div>`;
+    if(u) el.onclick=()=>{tzCL=i;tzST=tzBuild(i);tzShowSS()};
+    g.appendChild(el);
+  });
+}
+function tzRenderSS(){
+  const lvl=TZL[tzCL];
+  document.getElementById('tz-ss-title').textContent=`Level ${tzCL+1}: ${lvl.label}`;
+  document.getElementById('tz-ss-desc').textContent=lvl.desc;
+  const list=document.getElementById('tz-stages-list');list.innerHTML='';
+  tzST.forEach((st,i)=>{
+    const u=tzSU(tzCL,i),d=tzSD(tzCL,i),t=st.type==='test';
+    const el=document.createElement('div');
+    el.className='srow'+(u?'':' locked')+(d?' done':'')+(t?' test':'');
+    el.innerHTML=`<span class="sn">${i+1}</span><span class="st">${st.label} — ${st.words.length} words</span><span class="badge ${d?'bd':t?'bt':'bp'}">${d?'done':t?'test':'practice'}</span>`;
+    if(u) el.onclick=()=>tzStart(i);
+    list.appendChild(el);
+  });
+}
+function tzStart(si){
+  tzCS=si;const st=tzST[si];
+  tzS={words:[...st.words],idx:0,typed:'',chars:0,t0:null,res:[]};
+  document.getElementById('tz-prac-title').textContent=`L${tzCL+1} · ${st.label}`;
+  tzRenderKB(st.keys);tzRenderWord();tzUpdateStats();
+  document.getElementById('tz-badges').innerHTML='';
+  tzSS2('tz-prac');
+  const inp=document.getElementById('tz-inp');inp.value='';inp.className='';inp.focus();
+  inp.oninput=tzInput;
+}
+function tzRenderWord(){
+  const word=tzS.words[tzS.idx]||'',typed=tzS.typed;
+  let html='';
+  for(let i=0;i<word.length;i++){
+    if(i<typed.length) html+=`<span class="${typed[i]===word[i]?'c':'w'}">${word[i]}</span>`;
+    else if(i===typed.length) html+=`<span class="cur">${word[i]}</span>`;
+    else html+=`<span class="p">${word[i]}</span>`;
+  }
+  document.getElementById('tz-word').innerHTML=html;
+  document.getElementById('tz-prac-prog').textContent=`${tzS.idx+1} / ${tzS.words.length}`;
+  document.getElementById('tz-hint').textContent=[...new Set(word)].join('  ');
+}
+function tzInput(e){
+  const inp=e.target,typed=inp.value,word=tzS.words[tzS.idx]||'';
+  if(!tzS.t0&&typed.length>0) tzS.t0=Date.now();
+  tzS.typed=typed;
+  inp.className=typed.split('').some((c,i)=>word[i]&&c!==word[i])?'err':'';
+  if(typed===word){
+    const ok=typed.split('').every((c,i)=>c===word[i]);
+    tzS.res.push({ok});tzS.chars+=word.length;tzS.idx++;
+    inp.value='';tzS.typed='';inp.className='';
+    const b=document.createElement('span');b.className='wb'+(ok?'':' fail');b.textContent=word;
+    document.getElementById('tz-badges').appendChild(b);
+    tzUpdateStats();
+    if(tzS.idx>=tzS.words.length) tzFinish();else tzRenderWord();
+  }else{tzRenderWord();tzUpdateStats()}
+}
+function tzUpdateStats(){
+  const el=(Date.now()-(tzS.t0||Date.now()))/60000||.001;
+  const wpm=Math.round((tzS.chars/5)/Math.max(el,.001));
+  const ok=tzS.res.filter(r=>r.ok).length;
+  const acc=tzS.res.length>0?Math.round(ok/tzS.res.length*100):100;
+  document.getElementById('tz-wpm').textContent=tzS.t0?wpm:0;
+  document.getElementById('tz-acc').textContent=acc+'%';
+  document.getElementById('tz-done').textContent=tzS.idx;
+  document.getElementById('tz-left').textContent=tzS.words.length-tzS.idx;
+}
+function tzFinish(){
+  P[`t${tzCL}_${tzCS}`]=true;SP();
+  const el=(Date.now()-tzS.t0)/1000,wpm=Math.round((tzS.chars/5)/(el/60));
+  const ok=tzS.res.filter(r=>r.ok).length,acc=Math.round(ok/tzS.res.length*100);
+  document.getElementById('tz-res-wpm').textContent=wpm;
+  document.getElementById('tz-res-acc').textContent=acc+'%';
+  document.getElementById('tz-res-words').textContent=tzS.res.length;
+  document.getElementById('tz-res-time').textContent=Math.round(el)+'s';
+  tzSS2('tz-result');
+}
+function tzRetry(){tzStart(tzCS)}
+function tzNext(){
+  if(tzCS+1<tzST.length) tzStart(tzCS+1);
+  else if(tzCL+1<TZL.length){tzCL++;tzST=tzBuild(tzCL);tzShowSS()}
+  else tzShowHome();
+}
+const KBR=[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l',';'],['z','x','c','v','b','n','m']];
+function tzLearnedKeys(){let k=[];for(let i=0;i<TZL.length;i++){if(tzLD(i))k=[...k,...TZL[i].keys];else break}return k}
+function tzRenderKB(ak){
+  const lk=tzLearnedKeys(),kb=document.getElementById('tz-kb');kb.innerHTML='';
+  KBR.forEach((row,ri)=>{
+    const rd=document.createElement('div');rd.className='kb-row';
+    row.forEach(k=>{
+      const kd=document.createElement('div');
+      kd.className='key'+(ak.includes(k)?' ak':lk.includes(k)?' lk':'');
+      kd.textContent=k;rd.appendChild(kd);
+    });
+    if(ri===2){const sp=document.createElement('div');sp.className='key space-key';sp.textContent='space';rd.appendChild(sp)}
+    kb.appendChild(rd);
+  });
+}
+
+// ─── GAMES ───
+const GAMES=[
+  {id:'falling',emoji:'🌧️',name:'Key Rain',desc:'catch falling letters before they hit the ground',unlock:0},
+  {id:'speedburst',emoji:'⚡',name:'Speed Burst',desc:'type as fast as you can in 30 seconds',unlock:1},
+  {id:'wordrain',emoji:'🌊',name:'Word Flood',desc:'type words before they wash away',unlock:2},
+  {id:'emojimatch',emoji:'🎯',name:'Emoji Match',desc:'each emoji hides a key sequence — figure it out',unlock:3},
+  {id:'marathon',emoji:'🏃',name:'Key Marathon',desc:'100 words, no stopping, pure endurance',unlock:5},
+  {id:'precision',emoji:'🎪',name:'Precision',desc:'one mistake ends it — how far can you go?',unlock:4},
+];
+function tzUnlockedKeys(){let k=[];for(let i=0;i<TZL.length;i++){k=[...k,...TZL[i].keys];if(!tzLD(i))break}return k.filter(c=>c!==' ')}
+function tzLevelsDone(){let c=0;for(let i=0;i<TZL.length;i++){if(tzLD(i))c++;else break}return c}
+
+function gmRenderHome(){
+  const done=tzLevelsDone();
+  document.getElementById('gm-hdr').textContent=`${done} levels done`;
+  const g=document.getElementById('gm-grid');g.innerHTML='';
+  GAMES.forEach(gm=>{
+    const u=done>=gm.unlock;
+    const d=document.createElement('div');d.className='game-card'+(u?'':' locked');
+    d.innerHTML=`<span class="gc-emoji">${gm.emoji}</span><div class="gc-name">${gm.name}</div><div class="gc-desc">${gm.desc}</div>${!u?`<div class="gc-lock">complete level ${gm.unlock} to unlock</div>`:''}`;
+    if(u) d.onclick=()=>gmStart(gm.id);
+    g.appendChild(d);
+  });
+}
+function gmSS(id){document.querySelectorAll('.gm-screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function gmShowHome(){gmClear();gmSS('gm-home');gmRenderHome()}
+let gmCG=null,gmSc=0,gmIv=null,gmTo=null;
+function gmStart(id){
+  gmClear();gmSc=0;gmCG=id;
+  document.getElementById('gm-play-title').textContent=GAMES.find(g=>g.id===id).name;
+  document.getElementById('gm-score-display').textContent='score: 0';
+  gmSS('gm-play');
+  const c=document.getElementById('gm-content');c.innerHTML='';
+  ({falling:gmFalling,speedburst:gmSpeedBurst,wordrain:gmWordRain,emojimatch:gmEmojiMatch,marathon:gmMarathon,precision:gmPrecision})[id](c);
+}
+function gmReplay(){if(gmCG) gmStart(gmCG)}
+function gmClear(){if(gmIv) clearInterval(gmIv);if(gmTo) clearTimeout(gmTo);gmIv=null;gmTo=null}
+function gmSco(s){gmSc=s;document.getElementById('gm-score-display').textContent=`score: ${s}`}
+function gmOver(title,stats){
+  gmClear();
+  document.getElementById('go-score').textContent=gmSc;
+  document.getElementById('go-lbl').textContent=title;
+  const sd=document.getElementById('go-stats');sd.innerHTML='';
+  stats.forEach(s=>{const d=document.createElement('div');d.className='rs';d.innerHTML=`<div class="rv">${s.v}</div><div class="rl">${s.l}</div>`;sd.appendChild(d)});
+  gmSS('gm-over');
+}
+
+function gmFalling(c){
+  const keys=tzUnlockedKeys();let lives=3,score=0,missed=0;
+  c.innerHTML=`<div class="fk-arena" id="fk-a"></div><input class="game-inp" id="fk-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type the falling key…" maxlength="1"/><div style="display:flex;align-items:center;justify-content:space-between"><div class="lives" id="fk-l">❤️❤️❤️</div><div style="font-size:11px;color:var(--text2)" id="fk-m">missed: 0</div></div>`;
+  const arena=document.getElementById('fk-a'),inp=document.getElementById('fk-i');inp.focus();
+  const falling=[];
+  function spawn(){
+    if(lives<=0) return;
+    const k=rnd(keys),el=document.createElement('div');
+    el.className='falling-key';el.textContent=k;
+    const spd=randInt(2500,4500);el.style.left=randInt(5,85)+'%';el.style.animationDuration=spd+'ms';
+    arena.appendChild(el);const obj={el,key:k,done:false};falling.push(obj);
+    setTimeout(()=>{
+      if(!obj.done){
+        obj.done=true;el.remove();falling.splice(falling.indexOf(obj),1);
+        lives--;missed++;
+        document.getElementById('fk-l').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(Math.max(0,3-lives));
+        document.getElementById('fk-m').textContent=`missed: ${missed}`;
+        if(lives<=0) gmOver('Key Rain over',[{v:score,l:'caught'},{v:missed,l:'missed'}]);
+      }
+    },spd);
+  }
+  inp.oninput=e=>{
+    const v=inp.value;inp.value='';
+    const i=falling.findIndex(f=>!f.done&&f.key===v);
+    if(i>-1){falling[i].done=true;falling[i].el.remove();falling.splice(i,1);score++;gmSco(score)}
+  };
+  gmIv=setInterval(()=>{if(lives>0) spawn()},900);spawn();
+}
+
+function gmSpeedBurst(c){
+  const keys=tzUnlockedKeys();
+  function gen(){let w='';for(let i=0;i<randInt(2,4);i++)w+=rnd(keys);return w}
+  let score=0,streak=0,tl=30,started=false,curW=gen();
+  c.innerHTML=`<div class="sb-arena"><div class="sb-target" id="sb-t">${curW}</div><div class="sb-bar-wrap"><div class="sb-bar" id="sb-b" style="width:100%"></div></div><div class="sb-timer" id="sb-ti">30.0s remaining</div></div><input class="game-inp" id="sb-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="start typing to begin…"/><div class="sb-streak" id="sb-s"></div>`;
+  const inp=document.getElementById('sb-i');inp.focus();
+  function tick(){tl-=.1;if(tl<=0){clearInterval(gmIv);gmIv=null;gmOver('Speed Burst done',[{v:score,l:'words'},{v:streak,l:'best streak'}]);return}document.getElementById('sb-ti').textContent=tl.toFixed(1)+'s remaining';document.getElementById('sb-b').style.width=(tl/30*100)+'%'}
+  inp.oninput=e=>{
+    if(!started){started=true;gmIv=setInterval(tick,100)}
+    if(inp.value===curW){inp.value='';score++;streak++;gmSco(score);document.getElementById('sb-s').textContent=streak>1?`🔥 ${streak}x streak`:'';curW=gen();document.getElementById('sb-t').textContent=curW}
+  };
+}
+
+function gmWordRain(c){
+  const keys=tzUnlockedKeys();
+  function gen(l){let w='';for(let i=0;i<l;i++)w+=rnd(keys);return w}
+  let score=0,lives=3,missed=0;
+  c.innerHTML=`<div class="fk-arena" id="wr-a" style="height:260px"></div><input class="game-inp" id="wr-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type the highlighted word…"/><div style="display:flex;justify-content:space-between"><div class="lives" id="wr-l">❤️❤️❤️</div><div style="font-size:11px;color:var(--text2)" id="wr-s">score: 0</div></div>`;
+  const arena=document.getElementById('wr-a'),inp=document.getElementById('wr-i');inp.focus();
+  const falling=[];let tgt=null;
+  function spawn(){
+    if(lives<=0) return;
+    const w=gen(randInt(2,4)),el=document.createElement('div');
+    el.className='wr-word';el.textContent=w;
+    const spd=randInt(3000,5000);el.style.left=randInt(2,65)+'%';el.style.animationDuration=spd+'ms';
+    arena.appendChild(el);const obj={el,w,done:false};falling.push(obj);
+    if(!tgt){tgt=obj;el.classList.add('wr-active');inp.placeholder=`type: ${w}`}
+    setTimeout(()=>{
+      if(!obj.done){
+        obj.done=true;el.remove();falling.splice(falling.indexOf(obj),1);
+        if(tgt===obj){
+          tgt=falling.find(f=>!f.done)||null;
+          if(tgt){tgt.el.classList.add('wr-active');inp.placeholder=`type: ${tgt.w}`}else inp.placeholder='type the highlighted word…';
+          lives--;missed++;document.getElementById('wr-l').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives));
+          if(lives<=0) gmOver('Word Flood over',[{v:score,l:'caught'},{v:missed,l:'missed'}]);
+        }
+      }
+    },spd);
+  }
+  inp.oninput=e=>{
+    if(tgt&&inp.value===tgt.w){
+      inp.value='';tgt.done=true;tgt.el.remove();falling.splice(falling.indexOf(tgt),1);
+      score++;gmSco(score);
+      tgt=falling.find(f=>!f.done)||null;
+      if(tgt){tgt.el.classList.add('wr-active');inp.placeholder=`type: ${tgt.w}`}else inp.placeholder='type the highlighted word…';
+      document.getElementById('wr-s').textContent=`score: ${score}`;
+    }
+  };
+  gmIv=setInterval(()=>{if(lives>0) spawn()},1200);spawn();
+}
+
+const EM=[
+  {e:'😀',w:'jfj'},{e:'🔥',w:'fjf'},{e:'⭐',w:'jjf'},{e:'🎯',w:'fjj'},
+  {e:'💫',w:'urr'},{e:'🌟',w:'ruu'},{e:'🎪',w:'uru'},{e:'🎭',w:'rur'},
+  {e:'🌊',w:'kdk'},{e:'⚡',w:'dkd'},{e:'🌈',w:'kkd'},{e:'🎸',w:'dkk'},
+  {e:'🏆',w:'lsl'},{e:'🎮',w:'sls'},{e:'🚀',w:'lls'},{e:'🎲',w:'ssl'},
+];
+function gmEmojiMatch(c){
+  const keys=tzUnlockedKeys();
+  const pool=EM.filter(e=>e.w.split('').every(ch=>keys.includes(ch)));
+  const use=pool.length>0?pool:EM.slice(0,4);
+  let score=0,combo=0,cur=rnd(use);
+  c.innerHTML=`<div class="em-arena"><div class="em-emoji" id="em-e">${cur.e}</div><div class="em-prompt">type the key sequence shown below</div><div class="em-keys-show" id="em-k">?</div></div><div class="combo-bar" id="em-c"></div><input class="game-inp" id="em-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type sequence…" maxlength="6"/>`;
+  const inp=document.getElementById('em-i');inp.focus();
+  let rv=null;
+  function next(){
+    cur=rnd(use);
+    const ee=document.getElementById('em-e');ee.textContent=cur.e;ee.style.animation='none';void ee.offsetWidth;ee.style.animation='pop .2s ease';
+    document.getElementById('em-k').textContent='?';inp.value='';
+    if(rv) clearTimeout(rv);
+    rv=setTimeout(()=>{document.getElementById('em-k').textContent=cur.w},1500);
+  }
+  inp.oninput=e=>{
+    const v=inp.value;
+    if(v===cur.w){inp.value='';score++;combo++;gmSco(score);document.getElementById('em-c').textContent=combo>1?`🔥 ${combo}x combo`:'';next()}
+    else if(!cur.w.startsWith(v)){combo=0;document.getElementById('em-c').textContent='';inp.value=''}
+  };
+  next();
+}
+
+function gmMarathon(c){
+  const keys=tzUnlockedKeys();
+  function gen(){let w='';for(let i=0;i<randInt(3,5);i++)w+=rnd(keys);return w}
+  const words=Array.from({length:100},gen);let idx=0,errors=0,start=null;
+  c.innerHTML=`<div class="wdisp" style="min-height:80px"><div class="tw" style="font-size:32px;letter-spacing:6px" id="mt-w"></div><div style="font-size:11px;color:var(--text3)" id="mt-p">0 / 100</div></div><input class="game-inp" id="mt-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type all 100 words…" style="margin-bottom:1rem"/><div style="background:var(--bg2);border-radius:4px;height:4px;overflow:hidden;border:1px solid var(--border)"><div id="mt-b" style="height:100%;background:var(--text);width:0%;transition:width .2s;border-radius:4px"></div></div>`;
+  function render(){document.getElementById('mt-w').textContent=words[idx];document.getElementById('mt-p').textContent=`${idx} / 100`;document.getElementById('mt-b').style.width=idx+'%'}
+  render();const inp=document.getElementById('mt-i');inp.focus();
+  inp.oninput=e=>{
+    if(!start) start=Date.now();
+    if(inp.value===words[idx]){
+      inp.value='';idx++;
+      if(idx>=100){const el=(Date.now()-start)/1000,wpm=Math.round((words.join('').length/5)/(el/60));gmOver('Marathon complete!',[{v:wpm,l:'wpm'},{v:100,l:'words'},{v:errors,l:'errors'}])}
+      else render();
+    }else if(!words[idx].startsWith(inp.value)) errors++;
+  };
+}
+
+function gmPrecision(c){
+  const keys=tzUnlockedKeys();
+  function gen(){let w='';for(let i=0;i<randInt(2,4);i++)w+=rnd(keys);return w}
+  let score=0,dead=false,cw=gen();
+  c.innerHTML=`<div class="sb-arena"><div style="font-size:11px;color:var(--text2);margin-bottom:.75rem">one mistake ends the run</div><div class="sb-target" id="pm-w">${cw}</div></div><input class="game-inp" id="pm-i" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="no mistakes allowed…"/>`;
+  const inp=document.getElementById('pm-i');inp.focus();
+  inp.oninput=e=>{
+    if(dead) return;
+    if(!cw.startsWith(inp.value)){dead=true;gmOver('Precision over',[{v:score,l:'perfect words'}]);return}
+    if(inp.value===cw){inp.value='';score++;gmSco(score);cw=gen();document.getElementById('pm-w').textContent=cw}
+  };
+}
+
+// ─── SPEED TEST ───
+const STW=['the','be','to','of','and','a','in','that','have','it','for','not','on','with','he','as','you','do','at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like','time','no','just','him','know','take','people','into','year','your','good','some','could','them','see','other','than','then','now','look','only','come','its','over','think','also','back','after','use','two','how','our','work','first','well','way','even','new','want','because','any','these','give','day','most','us','great','life','old','never','right','still','between','need','large','often','hand','high','place','hold','turn','help','found','move','try','ask','does','set','small','number','off','always','next','show','below','country','plant','last','school','keep','tree','start','city','light','thought','head','under','story','left','while','close','something','seem','side','called','sit','six','door','cut','got','feel'];
+const STQ=['the quick brown fox jumps over the lazy dog and the dog just completely ignored it','practice makes perfect and the fingers learn their way around the keys through repetition','speed comes from calm precision of knowing where every key lives not from rushing','the keyboard is an instrument and the typist is the musician playing it note by note','every expert was once a beginner who simply refused to quit when things got difficult','muscle memory builds one keystroke at a time patience turns into speed over many days','there is no shortcut to mastery only the long road walked one word at a time'];
+const STC=['const','let','var','function','return','if','else','for','while','class','import','export','async','await','true','false','null','undefined','new','this','try','catch','throw','break','continue','switch','case','default','typeof','instanceof'];
+
+let stTL=30,stM='words',stTimer=null,stTLeft=0,stStarted=false;
+let stText=[],stTyped=[],stWI=0,stErr=0,stOk=0,stHist=[],stLT=0;
+
+function stSetTime(t){stTL=t;document.querySelectorAll('#st-time-opts .st-opt').forEach(b=>b.classList.toggle('active',+b.dataset.val===t));stReset()}
+function stSetMode(m){stM=m;document.querySelectorAll('#st-mode-opts .st-opt').forEach(b=>b.classList.toggle('active',b.dataset.val===m));stReset()}
+function stGenText(){
+  if(stM==='quotes') return rnd(STQ).split(' ');
+  if(stM==='code') return shuffle([...STC,...STC]).slice(0,60);
+  return shuffle([...STW,...STW]).slice(0,100);
+}
+function stInit(){stReset()}
+function stReset(){
+  if(stTimer) clearInterval(stTimer);stTimer=null;
+  stStarted=false;stTLeft=stTL;
+  stText=stGenText();stTyped=[];stWI=0;stErr=0;stOk=0;stHist=[];stLT=0;
+  document.getElementById('st-timer-display').textContent=stTL;
+  document.getElementById('st-time-bar').style.width='100%';
+  document.getElementById('st-wpm-live').textContent='-- wpm';
+  document.getElementById('st-result-area').style.display='none';
+  document.getElementById('st-test-area').style.display='block';
+  document.getElementById('st-click-hint').style.display='block';
+  document.getElementById('st-para-wrap').style.display='none';
+  stRenderPara();
+}
+function stFocus(){
+  document.getElementById('st-click-hint').style.display='none';
+  document.getElementById('st-para-wrap').style.display='block';
+  const inp=document.getElementById('st-hidden-inp');inp.value='';inp.focus();
+  inp.onkeydown=stKey;stRenderPara();
+}
+function stRenderPara(){
+  const p=document.getElementById('st-para');if(!p) return;
+  let html='';
+  stText.forEach((word,wi)=>{
+    let wh='';const tw=stTyped[wi]||[];
+    word.split('').forEach((ch,ci)=>{
+      if(wi<stWI) wh+=`<span class="${(tw[ci]||'')===ch?'st-correct':'st-wrong'}">${ch}</span>`;
+      else if(wi===stWI){
+        if(ci<tw.length) wh+=`<span class="${tw[ci]===ch?'st-correct':'st-wrong'}">${ch}</span>`;
+        else if(ci===tw.length) wh+=`<span class="st-cursor">${ch}</span>`;
+        else wh+=`<span>${ch}</span>`;
+      } else wh+=`<span>${ch}</span>`;
+    });
+    html+=`<span>${wh}</span> `;
+  });
+  p.innerHTML=html;
+  const cur=p.querySelector('.st-cursor');
+  if(cur) cur.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function stKey(e){
+  if(e.key==='Tab'){e.preventDefault();return}
+  if(!stStarted&&e.key.length===1){stStarted=true;stLT=Date.now();stTimer=setInterval(stTick,100)}
+  if(!stTyped[stWI]) stTyped[stWI]=[];
+  if(e.key==='Backspace'){
+    if(stTyped[stWI].length>0) stTyped[stWI].pop();
+    else if(stWI>0){stWI--;if(!stTyped[stWI]) stTyped[stWI]=[]}
+    stRenderPara();return;
+  }
+  if(e.key===' '||e.key==='Enter'){
+    const t=(stTyped[stWI]||[]).join(''),tg=stText[stWI]||'';
+    if(t===tg) stOk++;else stErr++;
+    stWI++;if(!stTyped[stWI]) stTyped[stWI]=[];
+    if(stWI>=stText.length) stFinish();else stRenderPara();
+    return;
+  }
+  if(e.key.length===1){stTyped[stWI].push(e.key);stRenderPara()}
+}
+function stTick(){
+  stTLeft-=.1;
+  if(stTLeft<=0){stTLeft=0;stFinish();return}
+  document.getElementById('st-timer-display').textContent=Math.ceil(stTLeft);
+  document.getElementById('st-time-bar').style.width=(stTLeft/stTL*100)+'%';
+  const now=Date.now();
+  if(now-stLT>=1000){
+    const el=(stTL-stTLeft)/60,chars=stTyped.slice(0,stWI).flat().length;
+    const wpm=el>0?Math.round((chars/5)/el):0;
+    stHist.push(wpm);document.getElementById('st-wpm-live').textContent=wpm+' wpm';stLT=now;
+  }
+}
+function stFinish(){
+  if(stTimer) clearInterval(stTimer);stTimer=null;
+  const el=stTL-stTLeft,chars=stTyped.flat().length;
+  const wpm=el>0?Math.round((chars/5)/(el/60)):0;
+  const total=stTyped.length,acc=total>0?Math.round(stOk/total*100):100;
+  document.getElementById('st-test-area').style.display='none';
+  document.getElementById('st-result-area').style.display='block';
+  document.getElementById('str-wpm').textContent=wpm;
+  document.getElementById('str-acc').textContent=acc+'%';
+  document.getElementById('str-chars').textContent=chars;
+  document.getElementById('str-words').textContent=total;
+  document.getElementById('str-errors').textContent=stErr;
+  const chart=document.getElementById('str-chart');chart.innerHTML='';
+  const mx=Math.max(...stHist,1);
+  stHist.forEach(w=>{const b=document.createElement('div');b.className='str-bar'+(w===mx?' peak':'');b.style.height=Math.max(3,Math.round(w/mx*64))+'px';chart.appendChild(b)});
+}
+</script>
+</body>
+</html>
