@@ -922,7 +922,19 @@ function stFinish(){
   const chart=document.getElementById('str-chart');chart.innerHTML='';
   const mx=Math.max(...stHist,1);
   stHist.forEach(w=>{const b=document.createElement('div');b.className='str-bar'+(w===mx?' peak':'');b.style.height=Math.max(3,Math.round(w/mx*64))+'px';chart.appendChild(b)});
-}
+}document.addEventListener('keydown', (e) => {
+  const isTZResult = document.getElementById('tz-result').classList.contains('active');
+
+  if (!isTZResult) return;
+
+  if (e.key.toLowerCase() === 'r') {
+    tzRetry();
+  }
+
+  if (e.key === 'Enter') {
+    tzNext();
+  }
+});
 </script>
 </body>
 </html>
