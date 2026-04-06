@@ -22,28 +22,28 @@ html,body{
   overflow-x:hidden;
 }
 
-/* ── PAGE SYSTEM WITH TRANSITIONS ── */
+/* ── PAGE SYSTEM ── */
+/* FIX: pages are position:fixed when inactive so they take zero layout space */
 .page{
-  display:none;
+  position:fixed;
+  inset:0;
+  overflow-y:auto;
+  visibility:hidden;
   opacity:0;
   transform:translateY(18px) scale(0.98);
-  transition:opacity 0.38s cubic-bezier(.4,0,.2,1), transform 0.38s cubic-bezier(.4,0,.2,1);
+  transition:opacity 0.38s cubic-bezier(.4,0,.2,1), transform 0.38s cubic-bezier(.4,0,.2,1), visibility 0s linear 0.38s;
   pointer-events:none;
+  background:var(--bg);
 }
 .page.active{
-  display:block;
+  position:relative; /* active page flows normally */
+  visibility:visible;
   pointer-events:auto;
+  transition:opacity 0.38s cubic-bezier(.4,0,.2,1), transform 0.38s cubic-bezier(.4,0,.2,1), visibility 0s linear 0s;
 }
 .page.visible{
   opacity:1;
   transform:translateY(0) scale(1);
-}
-/* exit animation helper */
-.page.exiting{
-  opacity:0;
-  transform:translateY(-12px) scale(0.98);
-  transition:opacity 0.22s cubic-bezier(.4,0,.2,1), transform 0.22s cubic-bezier(.4,0,.2,1);
-  pointer-events:none;
 }
 
 /* ── LANDING ── */
@@ -69,7 +69,6 @@ html,body{
   background:var(--bg);border:1.5px solid var(--border);border-radius:18px;padding:2.25rem 1.25rem 2rem;
   cursor:pointer;transition:border-color .22s, transform .22s, box-shadow .22s;
   display:flex;flex-direction:column;align-items:center;gap:.85rem;
-  /* staggered entrance */
   opacity:0;transform:translateY(20px);
 }
 .tab-card.card-in{
@@ -82,11 +81,20 @@ html,body{
   to{opacity:1;transform:translateY(0)}
 }
 .tab-card:hover{border-color:var(--text);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.07)}
-.tab-card:active{transform:translateY(-1px)}
+.tab-card:active{transform:translateY(-1px)!important}
 .tc-icon{font-size:44px;line-height:1;display:block;margin-bottom:.25rem}
 .tc-name{font-family:var(--sans);font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.5px}
 .tc-desc{font-size:10px;color:var(--text2);line-height:1.6;text-align:center;max-width:160px}
 .home-note{margin-top:2.5rem;font-size:10px;color:var(--text3)}
+
+/* ── INNER PAGES: flex column so header + body fill full height ── */
+#page-typezero,
+#page-games,
+#page-speedtest{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
 
 /* ── INNER HEADER ── */
 .inner-header{
@@ -153,10 +161,43 @@ html,body{
 .pm{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem}
 .pt{font-family:var(--sans);font-size:15px;font-weight:700;flex:1}
 .pp{font-size:11px;color:var(--text2)}
-.wdisp{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:2.5rem 2rem;text-align:center;margin-bottom:1.5rem;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem}
-.tw{font-size:38px;font-weight:500;letter-spacing:8px}
+
+/* ── WORD DISPLAY with transition ── */
+.wdisp{
+  background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+  padding:2.5rem 2rem;text-align:center;margin-bottom:1.5rem;min-height:110px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;
+  position:relative;overflow:hidden;
+}
+/* word fade-in animation when a new word appears */
+.tw{
+  font-size:38px;font-weight:500;letter-spacing:8px;
+  transition:opacity 0.22s ease, transform 0.22s ease;
+}
+.tw.word-exit{
+  opacity:0;transform:translateY(-8px) scale(0.95);
+}
+.tw.word-enter{
+  animation:wordIn 0.3s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes wordIn{
+  from{opacity:0;transform:translateY(10px) scale(0.96)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
 .tw .c{color:var(--green)}.tw .w{color:var(--red);text-decoration:underline}.tw .p{color:var(--text3)}.tw .cur{color:var(--text);border-bottom:2px solid var(--text)}
 .wh{font-size:11px;color:var(--text3)}
+
+/* mini flash badge when word completes */
+.word-flash{
+  position:absolute;inset:0;background:rgba(22,163,74,.07);
+  animation:flashBg 0.35s ease forwards;pointer-events:none;
+  border-radius:12px;
+}
+.word-flash.fail{background:rgba(220,38,38,.07)}
+@keyframes flashBg{
+  0%{opacity:1}100%{opacity:0}
+}
+
 #tz-inp{
   width:100%;font-size:22px;font-family:var(--mono);text-align:center;
   padding:.7rem 1rem;border:1.5px solid var(--border2);border-radius:8px;
@@ -164,7 +205,10 @@ html,body{
   transition:border-color .2s, box-shadow .2s;
 }
 #tz-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+#tz-inp:disabled{opacity:.45;cursor:not-allowed}
 #tz-inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+/* brief "accepted" glow before clearing */
+#tz-inp.accepted{border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(22,163,74,.12)!important}
 .srow-stats{display:flex;gap:8px;margin-bottom:1rem}
 .sc{flex:1;background:var(--bg2);border-radius:8px;padding:8px;text-align:center;border:1px solid var(--border)}
 .sv{font-size:18px;font-weight:500}.sl{font-size:10px;color:var(--text2);margin-top:2px}
@@ -178,8 +222,6 @@ html,body{
 .key.ak{background:#dbeafe;color:var(--blue);border-color:#93c5fd}
 .key.lk{background:#dcfce7;color:var(--green);border-color:#86efac}
 .key.space-key{min-width:120px}
-
-/* key press flash */
 .key.flash{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important;transform:scale(.88)}
 
 .res-wrap{text-align:center;padding:3rem 0;animation:slideIn .35s ease}
@@ -196,7 +238,6 @@ html,body{
 .btn:hover{background:var(--bg2)}
 .btn.pri{background:var(--text);color:var(--bg);border-color:var(--text)}
 .btn.pri:hover{opacity:.85}
-/* button press feedback */
 .btn:active,.tab-card:active,.lcard:active,.srow:active{transform:scale(.97)!important}
 
 /* ── GAMES ── */
@@ -271,20 +312,9 @@ html,body{
 .str-chart{height:80px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:2rem;display:flex;align-items:flex-end;padding:8px;gap:3px}
 .str-bar{flex:1;background:var(--border);border-radius:3px 3px 0 0;min-height:2px}
 .str-bar.peak{background:var(--text)}
-
-/* ── TRANSITION OVERLAY ── */
-#page-overlay{
-  position:fixed;inset:0;background:var(--bg);
-  pointer-events:none;opacity:0;z-index:999;
-  transition:opacity 0.18s ease;
-}
-#page-overlay.flash{opacity:0.6;transition:opacity 0.1s ease}
 </style>
 </head>
 <body>
-
-<!-- transition overlay -->
-<div id="page-overlay"></div>
 
 <!-- ════ LANDING ════ -->
 <div id="page-home" class="page">
@@ -335,7 +365,10 @@ html,body{
     <div id="tz-prac" class="tz-screen">
       <button class="ss-back" onclick="tzShowSS()">← stages</button>
       <div class="pm"><div class="pt" id="tz-prac-title"></div><div class="pp" id="tz-prac-prog"></div></div>
-      <div class="wdisp"><div class="tw" id="tz-word"></div><div class="wh" id="tz-hint"></div></div>
+      <div class="wdisp">
+        <div class="tw" id="tz-word"></div>
+        <div class="wh" id="tz-hint"></div>
+      </div>
       <input id="tz-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="type here…"/>
       <div class="srow-stats">
         <div class="sc"><div class="sv" id="tz-wpm">0</div><div class="sl">wpm</div></div>
@@ -454,7 +487,7 @@ html,body{
 
 <script>
 // ─── TRANSITION ENGINE ───
-const overlay = document.getElementById('page-overlay');
+// FIX: no overlay div needed — pages use visibility+opacity so no white flash
 let _navLocked = false;
 
 function openPage(id) {
@@ -464,29 +497,32 @@ function openPage(id) {
   const cur = document.querySelector('.page.active');
   const next = document.getElementById('page-' + id);
 
-  // Flash overlay in
-  overlay.classList.add('flash');
+  // Step 1: start exit on current page
+  if (cur) {
+    cur.classList.remove('visible');
+  }
 
+  // Step 2: after exit animation, swap pages
   setTimeout(() => {
-    // swap pages
-    if (cur) { cur.classList.remove('active', 'visible'); }
+    if (cur) cur.classList.remove('active');
+    // scroll to top before making active
+    next.scrollTop = 0;
+    window.scrollTo(0, 0);
     next.classList.add('active');
-    // fade overlay out
-    overlay.classList.remove('flash');
 
-    // trigger entrance animation on next frame
+    if (id === 'typezero') tzRenderHome();
+    if (id === 'games') gmRenderHome();
+    if (id === 'speedtest') stInit();
+
+    // Step 3: trigger entrance on next frame
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         next.classList.add('visible');
       });
     });
 
-    if (id === 'typezero') tzRenderHome();
-    if (id === 'games') gmRenderHome();
-    if (id === 'speedtest') stInit();
-
-    setTimeout(() => { _navLocked = false; }, 400);
-  }, 180);
+    setTimeout(() => { _navLocked = false; }, 420);
+  }, 200);
 }
 
 function goHome() {
@@ -496,16 +532,17 @@ function goHome() {
   const cur = document.querySelector('.page.active');
   const home = document.getElementById('page-home');
 
-  overlay.classList.add('flash');
+  if (cur) cur.classList.remove('visible');
+
   setTimeout(() => {
-    if (cur) cur.classList.remove('active', 'visible');
+    if (cur) cur.classList.remove('active');
+    window.scrollTo(0, 0);
+    home.scrollTop = 0;
     home.classList.add('active');
-    overlay.classList.remove('flash');
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         home.classList.add('visible');
-        // re-trigger card animations
         home.querySelectorAll('.tab-card').forEach(c => {
           c.classList.remove('card-in');
           void c.offsetWidth;
@@ -513,8 +550,8 @@ function goHome() {
         });
       });
     });
-    setTimeout(() => { _navLocked = false; }, 400);
-  }, 180);
+    setTimeout(() => { _navLocked = false; }, 420);
+  }, 200);
 }
 
 // ─── INNER SCREEN TRANSITIONS ───
@@ -524,6 +561,9 @@ function tzSS2(id, dir = 'forward') {
   const next = document.getElementById(id);
   next.classList.add('active');
   next.classList.add(dir === 'back' ? 'slide-back' : 'slide-in');
+  // scroll inner body to top on screen change
+  const body = document.querySelector('#page-typezero .inner-body');
+  if (body) body.scrollTop = 0;
 }
 
 function gmSS(id, dir = 'forward') {
@@ -531,6 +571,8 @@ function gmSS(id, dir = 'forward') {
   const next = document.getElementById(id);
   next.classList.add('active');
   next.classList.add(dir === 'back' ? 'slide-back' : 'slide-in');
+  const body = document.querySelector('#page-games .inner-body');
+  if (body) body.scrollTop = 0;
 }
 
 // ─── UTILS ───
@@ -580,10 +622,15 @@ function tzSD(li,si){return!!P[`t${li}_${si}`]}
 function tzSU(li,si){return si===0?tzLU(li):tzSD(li,si-1)}
 
 let tzCL=0,tzCS=0,tzST=[];
+
+// ── WORD TRANSITION STATE ──
+// FIX: Instead of a raw timeout lock, we use a proper state machine:
+// 'typing'  → user can type
+// 'transition' → brief pause + animation between words, input disabled
+let tzPhase = 'typing'; // 'typing' | 'transition'
+const TZ_WORD_TRANSITION = 320; // ms — visible pause between words (smooth but not too long)
+
 let tzS={words:[],idx:0,typed:'',chars:0,t0:null,res:[]};
-// debounce guard: ignore input for N ms after a word completes
-let _tzInputLocked = false;
-const TZ_WORD_PAUSE = 80; // ms pause between words
 
 function tzShowHome(){ tzSS2('tz-home','back'); tzRenderHome(); }
 function tzShowSS()  { tzSS2('tz-ss','back');   tzRenderSS();  }
@@ -615,59 +662,117 @@ function tzRenderSS(){
     list.appendChild(el);
   });
 }
+
 function tzStart(si){
   tzCS=si;const st=tzST[si];
   tzS={words:[...st.words],idx:0,typed:'',chars:0,t0:null,res:[]};
-  _tzInputLocked=false;
+  tzPhase='typing';
   document.getElementById('tz-prac-title').textContent=`L${tzCL+1} · ${st.label}`;
-  tzRenderKB(st.keys);tzRenderWord();tzUpdateStats();
+  tzRenderKB(st.keys);
+  tzRenderWord(false); // no animation on first word
+  tzUpdateStats();
   document.getElementById('tz-badges').innerHTML='';
   tzSS2('tz-prac','forward');
-  const inp=document.getElementById('tz-inp');inp.value='';inp.className='';
-  // small delay before focusing so transition settles
-  setTimeout(()=>{inp.focus();},120);
+  const inp=document.getElementById('tz-inp');
+  inp.value='';inp.className='';inp.disabled=false;
+  setTimeout(()=>{inp.focus();},140);
   inp.oninput=tzInput;
 }
-function tzRenderWord(){
-  const word=tzS.words[tzS.idx]||'',typed=tzS.typed;
+
+function tzRenderWord(animate=true){
+  const wordEl=document.getElementById('tz-word');
+  const word=tzS.words[tzS.idx]||'';
+  const typed=tzS.typed;
+
+  // Build the coloured spans
   let html='';
   for(let i=0;i<word.length;i++){
     if(i<typed.length) html+=`<span class="${typed[i]===word[i]?'c':'w'}">${word[i]}</span>`;
     else if(i===typed.length) html+=`<span class="cur">${word[i]}</span>`;
     else html+=`<span class="p">${word[i]}</span>`;
   }
-  document.getElementById('tz-word').innerHTML=html;
+
+  if(animate){
+    // Trigger enter animation
+    wordEl.classList.remove('word-enter','word-exit');
+    void wordEl.offsetWidth; // reflow
+    wordEl.innerHTML=html;
+    wordEl.classList.add('word-enter');
+  } else {
+    wordEl.classList.remove('word-enter','word-exit');
+    wordEl.innerHTML=html;
+  }
+
   document.getElementById('tz-prac-prog').textContent=`${tzS.idx+1} / ${tzS.words.length}`;
   document.getElementById('tz-hint').textContent=[...new Set(word)].join('  ');
 }
+
 function tzInput(e){
-  if(_tzInputLocked) { e.target.value=''; return; }
+  if(tzPhase==='transition'){ e.target.value=''; return; }
+
   const inp=e.target,typed=inp.value,word=tzS.words[tzS.idx]||'';
   if(!tzS.t0&&typed.length>0) tzS.t0=Date.now();
   tzS.typed=typed;
+
+  // Error highlight
   inp.className=typed.split('').some((c,i)=>word[i]&&c!==word[i])?'err':'';
 
-  // flash the key on keyboard
-  if(typed.length>0){
-    const lastKey=typed[typed.length-1];
-    tzFlashKey(lastKey);
-  }
+  // Flash key on keyboard
+  if(typed.length>0) tzFlashKey(typed[typed.length-1]);
 
   if(typed===word){
+    // ── WORD COMPLETE ──
     const ok=typed.split('').every((c,i)=>c===word[i]);
-    tzS.res.push({ok});tzS.chars+=word.length;tzS.idx++;
-    inp.value='';tzS.typed='';inp.className='';
+    tzS.res.push({ok});
+    tzS.chars+=word.length;
+    tzS.idx++;
+
+    // 1. Visual feedback: accepted glow + bg flash
+    inp.className='accepted';
+    inp.disabled=true;
+
+    // Flash the word display background
+    const wdisp=document.querySelector('.wdisp');
+    const flash=document.createElement('div');
+    flash.className='word-flash'+(ok?'':' fail');
+    wdisp.appendChild(flash);
+    setTimeout(()=>flash.remove(),400);
+
+    // Badge
     const b=document.createElement('span');b.className='wb'+(ok?'':' fail');b.textContent=word;
     document.getElementById('tz-badges').appendChild(b);
 
-    // PAUSE between words — lock input briefly
-    _tzInputLocked=true;
-    setTimeout(()=>{_tzInputLocked=false;},TZ_WORD_PAUSE);
-
     tzUpdateStats();
-    if(tzS.idx>=tzS.words.length) tzFinish();else tzRenderWord();
-  }else{tzRenderWord();tzUpdateStats()}
+
+    // 2. Enter transition phase — show brief pause then load next word
+    tzPhase='transition';
+
+    if(tzS.idx>=tzS.words.length){
+      // All words done — brief pause then show result
+      setTimeout(()=>{ tzPhase='typing'; tzFinish(); }, TZ_WORD_TRANSITION);
+    } else {
+      // Animate word exit, then load next word with entrance
+      const wordEl=document.getElementById('tz-word');
+      wordEl.classList.add('word-exit');
+
+      setTimeout(()=>{
+        // Reset input, render next word with animation
+        inp.value='';
+        inp.className='';
+        inp.disabled=false;
+        tzS.typed='';
+        tzPhase='typing';
+        tzRenderWord(true); // animated entrance
+        inp.focus();
+        tzUpdateStats();
+      }, TZ_WORD_TRANSITION);
+    }
+  } else {
+    tzRenderWord(false);
+    tzUpdateStats();
+  }
 }
+
 function tzUpdateStats(){
   const el=(Date.now()-(tzS.t0||Date.now()))/60000||.001;
   const wpm=Math.round((tzS.chars/5)/Math.max(el,.001));
@@ -678,6 +783,7 @@ function tzUpdateStats(){
   document.getElementById('tz-done').textContent=tzS.idx;
   document.getElementById('tz-left').textContent=tzS.words.length-tzS.idx;
 }
+
 function tzFinish(){
   P[`t${tzCL}_${tzCS}`]=true;SP();
   const el=(Date.now()-tzS.t0)/1000,wpm=Math.round((tzS.chars/5)/(el/60));
@@ -688,12 +794,14 @@ function tzFinish(){
   document.getElementById('tz-res-time').textContent=Math.round(el)+'s';
   tzSS2('tz-result','forward');
 }
+
 function tzRetry(){tzStart(tzCS)}
 function tzNext(){
   if(tzCS+1<tzST.length) tzStart(tzCS+1);
   else if(tzCL+1<TZL.length){tzCL++;tzST=tzBuild(tzCL);tzSS2('tz-ss','forward');tzRenderSS();}
   else tzShowHome();
 }
+
 const KBR=[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l',';'],['z','x','c','v','b','n','m']];
 function tzLearnedKeys(){let k=[];for(let i=0;i<TZL.length;i++){if(tzLD(i))k=[...k,...TZL[i].keys];else break}return k}
 function tzRenderKB(ak){
@@ -711,8 +819,7 @@ function tzRenderKB(ak){
 }
 function tzFlashKey(ch){
   const kb=document.getElementById('tz-kb');if(!kb)return;
-  const keys=kb.querySelectorAll('.key');
-  keys.forEach(k=>{
+  kb.querySelectorAll('.key').forEach(k=>{
     if(k.textContent.trim()===ch){
       k.classList.add('flash');
       setTimeout(()=>k.classList.remove('flash'),120);
@@ -752,7 +859,6 @@ function gmStart(id){
   document.getElementById('gm-score-display').textContent='score: 0';
   gmSS('gm-play','forward');
   const c=document.getElementById('gm-content');c.innerHTML='';
-  // small delay before starting game so slide animation plays
   setTimeout(()=>{
     ({falling:gmFalling,speedburst:gmSpeedBurst,wordrain:gmWordRain,emojimatch:gmEmojiMatch,marathon:gmMarathon,precision:gmPrecision})[id](c);
   },120);
@@ -1016,7 +1122,6 @@ function stFinish(){
 }
 
 // ─── KEYBOARD SHORTCUTS (result screen only) ───
-// guarded by result-screen check so 'r' and Enter don't bleed into practice
 document.addEventListener('keydown', (e) => {
   const isResult = document.getElementById('tz-result').classList.contains('active');
   if (!isResult) return;
@@ -1025,7 +1130,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─── BOOT ───
-// Show home with entrance animation on first load
 window.addEventListener('DOMContentLoaded', () => {
   const home = document.getElementById('page-home');
   home.classList.add('active');
